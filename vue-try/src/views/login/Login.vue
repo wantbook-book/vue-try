@@ -44,12 +44,13 @@ import {
   required, minLength, maxLength,
 } from 'vuelidate/lib/validators';
 import customValidator from '@/helper/validator';
+import userService from '@/service/userService';
+import storageService from '@/service/storageService';
 
 export default {
   data() {
     return {
       user: {
-        name: '',
         telephone: '',
         password: '',
       },
@@ -64,16 +65,30 @@ export default {
       return $dirty ? !$error : null;
     },
     login() {
-      if (this.user.telephone.length !== 11) {
-        this.telephoneValidation = false;
-        return;
-      }
-      this.telephoneValidation = true;
-
-      if (this.user.password.length < 6) {
-        this.passwordValidation = false;
+      this.$v.user.$touch();
+      if (this.$v.user.$anyerror) {
+        // 表单数据有错误，返回
       } else {
-        this.passwordValidation = true;
+        userService.login(this.user).then((res) => {
+          console.log(res.data);
+          // 登陆成功，保存token
+          storageService.set(storageService.USER_TOKEN, res.data.data.token);
+          // 获取用户信息请求
+          return userService.info();
+        }).then((res) => {
+          // 获取成功，保存用户信息
+          storageService.set(storageService.USER_INFO, JSON.stringify(res.data.data.user));
+          // 跳转到主页
+          this.$router.replace({ name: 'Home' });
+        }).catch((err) => {
+          // 请求失败，输出日志
+          console.log('err:', err.response.data.msg);
+          this.$bvToast.toast(err.response.data.msg, {
+            title: '数据验证错误',
+            variant: 'danger',
+            solid: true,
+          });
+        });
       }
     },
 

@@ -19,7 +19,7 @@
                 <em>{{userInfo.name}}</em>
               </template>
               <b-dropdown-item href="#">个人主页</b-dropdown-item>
-              <b-dropdown-item href="#">Sign Out</b-dropdown-item>
+              <b-dropdown-item @click="logout">Sign Out</b-dropdown-item>
             </b-nav-item-dropdown>
             <b-navbar-nav v-if="!userInfo">
               <b-nav-item v-if="$route.name !== 'login'" @click="$router.replace({name: 'login'})">
@@ -36,12 +36,21 @@
 
 <script>
 import { mapState } from 'vuex';
+import storageService from '@/service/storageService';
 
 export default {
   computed: mapState({
     userInfo: (state) => state.userModule.userInfo,
   }),
-
+  methods: {
+    logout() {
+      // 清除token和用户信息
+      storageService.set(storageService.USER_TOKEN, '');
+      storageService.set(storageService.USER_INFO, null);
+      // 跳转到登录页面
+      this.$router.replace({ name: 'login' });
+    },
+  },
 };
 
 </script>
