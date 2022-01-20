@@ -82,8 +82,13 @@ export default {
           // 保存token
           console.log(res.data);
           storageService.set(storageService.USER_TOKEN, res.data.data.token);
-          // 跳转到主页
-          this.$router.replace({ name: 'Home' });
+          // 获取用户信息
+          userService.info().then((resource) => {
+            // 保存用户信息
+            storageService.set(storageService.USER_INFO, JSON.stringify(resource.data.data.user));
+            // 跳转到主页
+            this.$router.replace({ name: 'Home' });
+          });
         }).catch((err) => {
           // 请求失败，输出日志
           console.log('err:', err.response.data.msg);

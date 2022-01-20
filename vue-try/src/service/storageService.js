@@ -12,9 +12,7 @@ const set = (key, data) => {
   localStorage.setItem(key, data);
 };
 // 读取方法
-const get = (key) => {
-  localStorage.getItem(key);
-};
+const get = (key) => localStorage.getItem(key);
 
 // 导出
 
