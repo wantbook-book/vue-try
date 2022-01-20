@@ -49,8 +49,8 @@ import {
   required, minLength, maxLength,
 } from 'vuelidate/lib/validators';
 import customValidator from '@/helper/validator';
-import storageService from '@/service/storageService';
-import userService from '@/service/userService';
+// import { mapMutations } from 'vuex';
+import { mapActions } from 'vuex';
 
 export default {
   data() {
@@ -65,7 +65,8 @@ export default {
     };
   },
   methods: {
-
+    // ...mapMutations('userModule', ['SET_TOKEN', 'SET_USERINFO']),
+    ...mapActions('userModule', { userRegister: 'register' }),
     validateState(name) {
       const { $dirty, $error } = this.$v.user[name];
       return $dirty ? !$error : null;
@@ -77,18 +78,10 @@ export default {
 
       } else {
         // 没有错误发送表单
-        // const api = 'http://localhost:9000/api/auth/register';
-        userService.register(this.user).then((res) => {
-          // 保存token
-          console.log(res.data);
-          storageService.set(storageService.USER_TOKEN, res.data.data.token);
-          // 获取用户信息
-          userService.info().then((resource) => {
-            // 保存用户信息
-            storageService.set(storageService.USER_INFO, JSON.stringify(resource.data.data.user));
-            // 跳转到主页
-            this.$router.replace({ name: 'Home' });
-          });
+        // this.$store.dispatch('userModule/register', this.user)
+        this.userRegister(this.user).then(() => {
+          // 跳转到主页
+          this.$router.replace({ name: 'Home' });
         }).catch((err) => {
           // 请求失败，输出日志
           console.log('err:', err.response.data.msg);
@@ -98,6 +91,7 @@ export default {
             solid: true,
           });
         });
+        // const api = 'http://localhost:9000/api/auth/register';
       }
     },
 
