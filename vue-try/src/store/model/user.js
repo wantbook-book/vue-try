@@ -42,6 +42,40 @@ const userModule = {
         });
       });
     },
+    login(context, { telephone, password }) {
+      return new Promise((resolve, reject) => {
+        // 发送登录请求
+        userService.login({ telephone, password }).then((res) => {
+          console.log(res.data);
+          // 登陆成功，保存token
+          context.commit('SET_TOKEN', res.data.data.token);
+          // 发送获取用户信息请求
+          return userService.info();
+        }).then((res) => {
+          // 获取信息成功，保存用户信息
+          context.commit('SET_USERINFO', res.data.data.user);
+
+          resolve(res);
+        }).catch((err) => {
+          // 失败
+          reject(err);
+        });
+      });
+    },
+    logout({ commit }) {
+      console.log(commit);
+      // state
+      // 清除token
+      commit('SET_TOKEN', '');
+      // 清除用户信息
+      commit('SET_USERINFO', null);
+
+      // 缓存
+      // 清除token
+      storageService.set(storageService.USER_TOKEN, '');
+      // 清除用户信息
+      storageService.set(storageService.USER_INFO, null);
+    },
   },
 };
 export default userModule;

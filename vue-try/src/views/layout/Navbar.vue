@@ -35,22 +35,13 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
-import storageService from '@/service/storageService';
+import { mapState, mapActions } from 'vuex';
 
 export default {
   computed: mapState({
     userInfo: (state) => state.userModule.userInfo,
   }),
-  methods: {
-    logout() {
-      // 清除token和用户信息
-      storageService.set(storageService.USER_TOKEN, '');
-      storageService.set(storageService.USER_INFO, null);
-      // 跳转到登录页面
-      this.$router.replace({ name: 'login' });
-    },
-  },
+  methods: mapActions('userModule', ['logout']),
 };
 
 </script>

@@ -44,8 +44,7 @@ import {
   required, minLength, maxLength,
 } from 'vuelidate/lib/validators';
 import customValidator from '@/helper/validator';
-import userService from '@/service/userService';
-import storageService from '@/service/storageService';
+import { mapActions } from 'vuex';
 
 export default {
   data() {
@@ -59,7 +58,7 @@ export default {
     };
   },
   methods: {
-
+    ...mapActions('userModule', { userLogin: 'login' }),
     validateState(name) {
       const { $dirty, $error } = this.$v.user[name];
       return $dirty ? !$error : null;
@@ -69,15 +68,7 @@ export default {
       if (this.$v.user.$anyerror) {
         // 表单数据有错误，返回
       } else {
-        userService.login(this.user).then((res) => {
-          console.log(res.data);
-          // 登陆成功，保存token
-          storageService.set(storageService.USER_TOKEN, res.data.data.token);
-          // 获取用户信息请求
-          return userService.info();
-        }).then((res) => {
-          // 获取成功，保存用户信息
-          storageService.set(storageService.USER_INFO, JSON.stringify(res.data.data.user));
+        this.userLogin(this.user).then(() => {
           // 跳转到主页
           this.$router.replace({ name: 'Home' });
         }).catch((err) => {
